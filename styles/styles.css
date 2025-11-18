@@ -14,13 +14,17 @@
 }
 html,
 body {
-  height: 100%;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
   font-family: Arial, sans-serif;
   background-color: var(--color-background-light);
   color: var(--color-text-primary);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr auto;
+  text-align: center;
 }
 header {
   background-color: var(--color-primary);
@@ -41,6 +45,8 @@ header {
     display: flex;
     gap: 1rem;
     > ul {
+      margin: 0;
+      padding: 0;
       list-style: none;
       display: flex;
       gap: 1rem;
@@ -54,8 +60,9 @@ header {
   }
 }
 main {
-  padding: 1rem;
-  height: 100%;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0.5rem 1rem;
 }
 footer {
   background-color: var(--color-background-dark);
@@ -93,12 +100,13 @@ button {
     background-color: #d32f2f;
   }
 }
-
 #pokemonList {
+  width: 100%;
+
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 1rem;
-  padding: 1rem;
   list-style: none;
   > li {
     background-color: var(--color-card-light);
@@ -126,6 +134,5 @@ button {
         color: var(--color-text-secondary);
       }
     }
-
   }
 }
