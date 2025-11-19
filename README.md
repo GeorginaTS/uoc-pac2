@@ -4,6 +4,8 @@
 
 Aplicació web de Pokedex amb HTML, CSS i JavaScript que consumeix la PokeAPI.
 
+🔗 **[Live Demo](https://georginats.github.io/uoc-pac2/)**
+
 ## 🚀 Funcionalitats
 
 ### Llista de Pokemon
