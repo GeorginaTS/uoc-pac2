@@ -70,6 +70,131 @@ footer {
   padding: 1rem;
   text-align: center;
 }
+
+/* Dialog styles */
+#pokemonDialog {
+  border: none;
+  border-radius: 1rem;
+  padding: 0;
+  max-width: 500px;
+  width: 90%;
+  background-color: var(--color-card-light);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  position: fixed;
+  top: 50vh;
+  left: 50vw;
+  transform: translate(-50%, -50%); 
+  margin: 0;
+}
+
+#pokemonDialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+/* Animacions d'obertura i tancament */
+#pokemonDialog.opening {
+  animation: scaleIn 0.3s ease-out;
+}
+
+#pokemonDialog.closing {
+  animation: scaleOut 0.3s ease-in;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translate(-50%, -50%);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translate(-50%, -50%);
+  }
+}
+
+@keyframes scaleOut {
+  from {
+    opacity: 1;
+    transform: scale(1) translate(-50%, -50%);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.8) translate(-50%, -50%);
+  }
+}
+
+.close-dialog {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  z-index: 10;
+}
+
+.close-dialog:hover {
+  background: #d32f2f;
+}
+
+.pokemon-detail {
+  padding: 2rem;
+  text-align: center;
+}
+
+.pokemon-detail img {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+}
+
+.pokemon-detail h2 {
+  text-transform: capitalize;
+  margin: 1rem 0;
+  color: var(--color-primary);
+}
+
+.pokemon-detail .stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.pokemon-detail .stats p {
+  background: var(--color-background-light);
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}
+
+.pokemon-detail .types {
+  margin-top: 1rem;
+}
+
+.pokemon-detail .type-list {
+  text-transform: capitalize;
+  color: var(--color-primary);
+  font-weight: bold;
+}
+
+.pokemon-card {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.pokemon-card:hover {
+  transform: scale(1.05);
+}
 form {
   width: 100%;
   display: grid;
@@ -135,4 +260,18 @@ button {
       }
     }
   }
+}
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  > button {
+    padding: 0.5rem 1rem;
+  }  
+  > span {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+}
 }

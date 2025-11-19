@@ -24,8 +24,41 @@
         </form>
         <section id="pokemonListSection">
             <ul id="pokemonList"></ul>
+            <div class="pagination">
+                <button id="prevBtn" disabled>Anterior</button>
+                <span id="pageInfo">Pàgina 1</span>
+                <button id="nextBtn">Següent</button>
+            </div>
         </section>
     </main>
+    
+    <template id="pokemonCardTemplate">
+        <article class="pokemon-card">
+            <img src="" alt="">
+            <h3></h3>
+            <p class="attack">Attack: <span></span></p>
+            <p class="defense">Defense: <span></span></p>
+        </article>
+    </template>
+    
+    <dialog id="pokemonDialog">
+        <button class="close-dialog">&times;</button>
+        <article class="pokemon-detail">
+            <img src="" alt="">
+            <h2></h2>
+            <p class="description"></p>
+            <div class="stats">
+                <p class="hp">HP: <span></span></p>
+                <p class="attack">Attack: <span></span></p>
+                <p class="defense">Defense: <span></span></p>
+                <p class="speed">Speed: <span></span></p>
+            </div>
+            <div class="types">
+                <p>Types: <span class="type-list"></span></p>
+            </div>
+        </article>
+    </dialog>
+    
     <footer>Georgina. Tots els drets reservats</footer>
 </body>
 </html>
