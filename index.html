@@ -12,8 +12,8 @@
         <div><img src="./img/Pokeball_icon-icons.com_67533.svg" alt="Pokedex"> <h3>Pokedex</h3></div>
         <nav>
             <ul>
-                <li>Llista</li>
-                <li>Combat</li>
+                <li><a href="index.html">Llista</a></li>
+                <li><a href="pages/combat.html">Combat</a></li>
             </ul>
         </nav>
     </header>
@@ -47,14 +47,67 @@
             <img src="" alt="">
             <h2></h2>
             <p class="description"></p>
-            <div class="stats">
-                <p class="hp">HP: <span></span></p>
-                <p class="attack">Attack: <span></span></p>
-                <p class="defense">Defense: <span></span></p>
-                <p class="speed">Speed: <span></span></p>
+            
+            <!-- Informació bàsica -->
+            <div class="info-box">
+                <h3>Informació</h3>
+                <p class="height">Altura: <span></span> m</p>
+                <p class="weight">Pes: <span></span> kg</p>
+                <p class="category">Categoria: <span></span></p>
+                <p class="abilities">Habilitats: <span></span></p>
+                <p class="gender">Gènere: <span></span></p>
             </div>
-            <div class="types">
-                <p>Types: <span class="type-list"></span></p>
+            
+            <!-- Tipus i Debilitats -->
+            <div class="type-box">
+                <h3>Tipus i Debilitats</h3>
+                <div class="type-badges">
+                    <strong>Tipus:</strong>
+                    <span class="type-list"></span>
+                </div>
+                <div class="weakness-badges">
+                    <strong>Debilitats:</strong>
+                    <span class="weakness-list"></span>
+                </div>
+            </div>
+            
+            <!-- Estadístiques -->
+            <div class="stats-box">
+                <h3>Estadístiques</h3>
+                <div class="stat">
+                    <span class="stat-name">HP</span>
+                    <div class="stat-bar">
+                        <div class="stat-fill hp-fill"></div>
+                    </div>
+                    <span class="stat-value hp-value"></span>
+                </div>
+                <div class="stat">
+                    <span class="stat-name">Attack</span>
+                    <div class="stat-bar">
+                        <div class="stat-fill attack-fill"></div>
+                    </div>
+                    <span class="stat-value attack-value"></span>
+                </div>
+                <div class="stat">
+                    <span class="stat-name">Defense</span>
+                    <div class="stat-bar">
+                        <div class="stat-fill defense-fill"></div>
+                    </div>
+                    <span class="stat-value defense-value"></span>
+                </div>
+                <div class="stat">
+                    <span class="stat-name">Speed</span>
+                    <div class="stat-bar">
+                        <div class="stat-fill speed-fill"></div>
+                    </div>
+                    <span class="stat-value speed-value"></span>
+                </div>
+            </div>
+            
+            <!-- Evolucions -->
+            <div class="evolution-box">
+                <h3>Evolucions</h3>
+                <div class="evolution-chain"></div>
             </div>
         </article>
     </dialog>

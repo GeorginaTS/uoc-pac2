@@ -51,60 +51,258 @@ const fetchPokemonFullDetails = async (url) => {
     const response = await fetch(url);
     const data = await response.json();
     
-    // Obtenir la descripció de species
+    // Obtenir la descripció i altres dades de species
     let description = '';
+    let category = '';
+    let gender = 'Desconegut';
+    let evolutionChainUrl = '';
+    
     try {
         const speciesResponse = await fetch(data.species.url);
         const speciesData = await speciesResponse.json();
+        
+        // Descripció
         const flavorTextEntry = speciesData.flavor_text_entries.find(
             entry => entry.language.name === 'en'
         );
         if (flavorTextEntry) {
             description = flavorTextEntry.flavor_text.replace(/\f/g, ' ');
         }
+        
+        // Categoria (genus)
+        const genusEntry = speciesData.genera.find(g => g.language.name === 'en');
+        if (genusEntry) {
+            category = genusEntry.genus;
+        }
+        
+        // Gènere
+        if (speciesData.gender_rate === -1) {
+            gender = 'Sense gènere';
+        } else if (speciesData.gender_rate === 0) {
+            gender = '100% Masculí';
+        } else if (speciesData.gender_rate === 8) {
+            gender = '100% Femení';
+        } else {
+            const femalePercent = (speciesData.gender_rate / 8) * 100;
+            gender = `${100 - femalePercent}% ♂ / ${femalePercent}% ♀`;
+        }
+        
+        // URL de la cadena d'evolució
+        evolutionChainUrl = speciesData.evolution_chain.url;
+        
     } catch (error) {
         console.log('Error fetching species:', error);
     }
     
+    // Obtenir debilitats basades en els tipus
+    const weaknesses = await getTypeWeaknesses(data.types.map(t => t.type.name));
+    
     return {
         name: data.name,
         image: data.sprites.other['official-artwork'].front_default,
+        height: (data.height / 10).toFixed(1), // Convertir de decímetres a metres
+        weight: (data.weight / 10).toFixed(1), // Convertir de hectograms a kg
+        category: category,
+        abilities: data.abilities.map(a => a.ability.name).join(', '),
+        gender: gender,
         hp: data.stats[0].base_stat,
         attack: data.stats[1].base_stat,
         defense: data.stats[2].base_stat,
         speed: data.stats[5].base_stat,
         types: data.types.map(t => t.type.name),
-        description: description
+        weaknesses: weaknesses,
+        description: description,
+        evolutionChainUrl: evolutionChainUrl
     };
+}
+
+// Obtenir debilitats basades en els tipus
+const getTypeWeaknesses = async (types) => {
+    const weaknessSet = new Set();
+    
+    try {
+        for (const typeName of types) {
+            const response = await fetch(`https://pokeapi.co/api/v2/type/${typeName}`);
+            const typeData = await response.json();
+            
+            // Afegir tipus als quals aquest tipus és dèbil (damage_relations.double_damage_from)
+            typeData.damage_relations.double_damage_from.forEach(weak => {
+                weaknessSet.add(weak.name);
+            });
+        }
+    } catch (error) {
+        console.log('Error fetching weaknesses:', error);
+    }
+    
+    return Array.from(weaknessSet);
+}
+
+// Obtenir cadena d'evolució
+const getEvolutionChain = async (evolutionChainUrl) => {
+    if (!evolutionChainUrl) return [];
+    
+    try {
+        const response = await fetch(evolutionChainUrl);
+        const data = await response.json();
+        
+        const evolutions = [];
+        let current = data.chain;
+        
+        // Recórrer la cadena d'evolució
+        while (current) {
+            // Obtenir la imatge del Pokemon
+            const speciesResponse = await fetch(current.species.url);
+            const speciesData = await speciesResponse.json();
+            const pokemonId = speciesData.id;
+            const pokemonResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}`);
+            const pokemonData = await pokemonResponse.json();
+            
+            evolutions.push({
+                name: current.species.name,
+                url: current.species.url,
+                image: pokemonData.sprites.other['official-artwork'].front_default,
+                id: pokemonId
+            });
+            current = current.evolves_to[0]; // Agafar la primera evolució
+        }
+        
+        return evolutions;
+    } catch (error) {
+        console.log('Error fetching evolution chain:', error);
+        return [];
+    }
 }
 
 const openPokemonDialog = async (pokemonUrl, cardElement) => {
     const dialog = document.getElementById('pokemonDialog');
+    
+    // Forçar scroll a 0 abans de res
+    dialog.scrollTo(0, 0);
+    
+    // Si el diàleg ja està obert, fer scroll a 0 immediatament
+    if (dialog.open) {
+        dialog.scrollTo(0, 0);
+    }
+    
     const pokemon = await fetchPokemonFullDetails(pokemonUrl);
     
-    // Omplir el dialog amb les dades
+    // Dades bàsiques
     const img = dialog.querySelector('img');
     const h2 = dialog.querySelector('h2');
     const description = dialog.querySelector('.description');
-    const hpSpan = dialog.querySelector('.hp span');
-    const attackSpan = dialog.querySelector('.attack span');
-    const defenseSpan = dialog.querySelector('.defense span');
-    const speedSpan = dialog.querySelector('.speed span');
-    const typeList = dialog.querySelector('.type-list');
     
     img.src = pokemon.image;
     img.alt = pokemon.name;
     h2.textContent = pokemon.name;
     description.textContent = pokemon.description;
-    hpSpan.textContent = pokemon.hp;
-    attackSpan.textContent = pokemon.attack;
-    defenseSpan.textContent = pokemon.defense;
-    speedSpan.textContent = pokemon.speed;
-    typeList.textContent = pokemon.types.join(', ');
     
-    // Afegir classe per transició
+    // Informació bàsica
+    dialog.querySelector('.height span').textContent = pokemon.height;
+    dialog.querySelector('.weight span').textContent = pokemon.weight;
+    dialog.querySelector('.category span').textContent = pokemon.category;
+    dialog.querySelector('.abilities span').textContent = pokemon.abilities;
+    dialog.querySelector('.gender span').textContent = pokemon.gender;
+    
+    // Tipus
+    const typeList = dialog.querySelector('.type-list');
+    typeList.innerHTML = '';
+    pokemon.types.forEach(type => {
+        const badge = document.createElement('span');
+        badge.className = `type-badge type-${type}`;
+        badge.textContent = type;
+        typeList.appendChild(badge);
+    });
+    
+    // Debilitats
+    const weaknessList = dialog.querySelector('.weakness-list');
+    weaknessList.innerHTML = '';
+    pokemon.weaknesses.forEach(weakness => {
+        const badge = document.createElement('span');
+        badge.className = `type-badge type-${weakness}`;
+        badge.textContent = weakness;
+        weaknessList.appendChild(badge);
+    });
+    
+    // Estadístiques amb barres
+    const statMaxValues = {
+        'hp': 255,
+        'attack': 190,
+        'defense': 230,
+        'speed': 200
+    };
+    
+    dialog.querySelector('.hp-value').textContent = `${pokemon.hp} / ${statMaxValues.hp}`;
+    dialog.querySelector('.hp-fill').style.width = `${Math.min((pokemon.hp / statMaxValues.hp) * 100, 100)}%`;
+    
+    dialog.querySelector('.attack-value').textContent = `${pokemon.attack} / ${statMaxValues.attack}`;
+    dialog.querySelector('.attack-fill').style.width = `${Math.min((pokemon.attack / statMaxValues.attack) * 100, 100)}%`;
+    
+    dialog.querySelector('.defense-value').textContent = `${pokemon.defense} / ${statMaxValues.defense}`;
+    dialog.querySelector('.defense-fill').style.width = `${Math.min((pokemon.defense / statMaxValues.defense) * 100, 100)}%`;
+    
+    dialog.querySelector('.speed-value').textContent = `${pokemon.speed} / ${statMaxValues.speed}`;
+    dialog.querySelector('.speed-fill').style.width = `${Math.min((pokemon.speed / statMaxValues.speed) * 100, 100)}%`;
+    
+    // Evolucions
+    const evolutionChain = await getEvolutionChain(pokemon.evolutionChainUrl);
+    const evolutionContainer = dialog.querySelector('.evolution-chain');
+    evolutionContainer.innerHTML = '';
+    
+    if (evolutionChain.length > 1) {
+        evolutionChain.forEach((evo, index) => {
+            const evoItem = document.createElement('div');
+            evoItem.className = 'evolution-item';
+            
+            const evoLink = document.createElement('a');
+            evoLink.href = '#';
+            evoLink.className = 'evolution-link';
+            evoLink.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const pokemonUrl = `https://pokeapi.co/api/v2/pokemon/${evo.id}`;
+                
+                // Simplement cridar openPokemonDialog sense tancar
+                await openPokemonDialog(pokemonUrl, null);
+            });
+            
+            const evoImg = document.createElement('img');
+            evoImg.src = evo.image;
+            evoImg.alt = evo.name;
+            evoImg.className = 'evolution-image';
+            
+            const evoName = document.createElement('span');
+            evoName.textContent = evo.name;
+            evoName.className = 'evolution-name';
+            
+            evoLink.appendChild(evoImg);
+            evoLink.appendChild(evoName);
+            evoItem.appendChild(evoLink);
+            
+            evolutionContainer.appendChild(evoItem);
+            
+            if (index < evolutionChain.length - 1) {
+                const arrow = document.createElement('span');
+                arrow.textContent = '→';
+                arrow.className = 'evolution-arrow';
+                evolutionContainer.appendChild(arrow);
+            }
+        });
+    } else {
+        evolutionContainer.textContent = 'No té evolucions';
+    }
+    
+    // Afegir classe per transició i obrir el dialog
     dialog.classList.add('opening');
-    dialog.showModal();
+    
+    // Si no estava obert, obrir-lo
+    if (!dialog.open) {
+        dialog.showModal();
+    }
+    
+    // Fer scroll al primer element (la imatge) del diàleg
+    const firstElement = dialog.querySelector('img');
+    if (firstElement) {
+        firstElement.scrollIntoView({ behavior: 'instant', block: 'start' });
+    }
     
     // Treure classe després de l'animació
     setTimeout(() => {
@@ -119,6 +317,7 @@ const closePokemonDialog = () => {
     setTimeout(() => {
         dialog.close();
         dialog.classList.remove('closing');
+        dialog.scrollTop = 0;
     }, 300);
 }
 
