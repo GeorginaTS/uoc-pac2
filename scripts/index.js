@@ -1,13 +1,14 @@
-const API_URL = "https://pokeapi.co/api/v2/pokemon";
-const POKEMON_COUNT = 20;
+const API_URL = "https://pokeapi.co/api/v2";
+const POKEMON_COUNT = 18;
 let currentPage = 1;
 let totalPokemons = 0;
 let allPokemonList = []; // Guardar tota la llista per filtrar
+let statMaxValues = { hp: 255, attack: 255, defense: 255, speed: 255 }; // Valors màxims calculats dinàmicament
 
 
 
 const fetchPokemons = async (limit, offset) => {
-    const url = API_URL + `?limit=${limit}&offset=${offset}`;
+    const url = API_URL + `/pokemon?limit=${limit}&offset=${offset}`;
     const response = await fetch(url);
     const data = await response.json();
     return data;
@@ -122,7 +123,7 @@ const getTypeWeaknesses = async (types) => {
     
     try {
         for (const typeName of types) {
-            const response = await fetch(`https://pokeapi.co/api/v2/type/${typeName}`);
+            const response = await fetch(`${API_URL}/type/${typeName}`);
             const typeData = await response.json();
             
             // Afegir tipus als quals aquest tipus és dèbil (damage_relations.double_damage_from)
@@ -154,7 +155,7 @@ const getEvolutionChain = async (evolutionChainUrl) => {
             const speciesResponse = await fetch(current.species.url);
             const speciesData = await speciesResponse.json();
             const pokemonId = speciesData.id;
-            const pokemonResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}`);
+            const pokemonResponse = await fetch(`${API_URL}/pokemon/${pokemonId}`);
             const pokemonData = await pokemonResponse.json();
             
             evolutions.push({
@@ -173,16 +174,11 @@ const getEvolutionChain = async (evolutionChainUrl) => {
     }
 }
 
-const openPokemonDialog = async (pokemonUrl, cardElement) => {
+const openPokemonDialog = async (pokemonUrl) => {
     const dialog = document.getElementById('pokemonDialog');
     
     // Forçar scroll a 0 abans de res
     dialog.scrollTo(0, 0);
-    
-    // Si el diàleg ja està obert, fer scroll a 0 immediatament
-    if (dialog.open) {
-        dialog.scrollTo(0, 0);
-    }
     
     const pokemon = await fetchPokemonFullDetails(pokemonUrl);
     
@@ -224,13 +220,6 @@ const openPokemonDialog = async (pokemonUrl, cardElement) => {
     });
     
     // Estadístiques amb barres
-    const statMaxValues = {
-        'hp': 255,
-        'attack': 190,
-        'defense': 230,
-        'speed': 200
-    };
-    
     dialog.querySelector('.hp-value').textContent = `${pokemon.hp} / ${statMaxValues.hp}`;
     dialog.querySelector('.hp-fill').style.width = `${Math.min((pokemon.hp / statMaxValues.hp) * 100, 100)}%`;
     
@@ -258,10 +247,10 @@ const openPokemonDialog = async (pokemonUrl, cardElement) => {
             evoLink.className = 'evolution-link';
             evoLink.addEventListener('click', async (e) => {
                 e.preventDefault();
-                const pokemonUrl = `https://pokeapi.co/api/v2/pokemon/${evo.id}`;
+                const pokemonUrl = `${API_URL}/pokemon/${evo.id}`;
                 
-                // Simplement cridar openPokemonDialog sense tancar
-                await openPokemonDialog(pokemonUrl, null);
+
+                await openPokemonDialog(pokemonUrl);
             });
             
             const evoImg = document.createElement('img');
@@ -366,10 +355,48 @@ const updatePaginationButtons = () => {
     pageInfo.textContent = `Pàgina ${currentPage} de ${totalPages}`;
 }
 
+// Calcular els valors màxims reals de cada estadística
+const calculateMaxStats = async () => {
+    const maxStats = {
+        hp: 0,
+        attack: 0,
+        defense: 0,
+        speed: 0
+    };
+    
+    // Mostrejar només els primers 150 Pokemon per optimitzar
+    const sampleSize = Math.min(150, allPokemonList.length);
+    
+    for (let i = 0; i < sampleSize; i++) {
+        try {
+            const response = await fetch(allPokemonList[i].url);
+            const data = await response.json();
+            
+            maxStats.hp = Math.max(maxStats.hp, data.stats[0].base_stat);
+            maxStats.attack = Math.max(maxStats.attack, data.stats[1].base_stat);
+            maxStats.defense = Math.max(maxStats.defense, data.stats[2].base_stat);
+            maxStats.speed = Math.max(maxStats.speed, data.stats[5].base_stat);
+        } catch (error) {
+            console.log('Error fetching stats:', error);
+        }
+    }
+    
+    // Actualitzar els valors globals
+    statMaxValues = maxStats;
+    console.log('Max stats calculats:', statMaxValues);
+}
+
 initializeApp = async () => {
+    // Obtenir el total real de Pokemons
+    const initialData = await fetchPokemons(1, 0);
+    const totalPokemonCount = initialData.count;
+    
     // Carregar tots els Pokemon per al filtre
-    const allPokemonData = await fetchPokemons(10000, 0);
+    const allPokemonData = await fetchPokemons(totalPokemonCount, 0);
     allPokemonList = allPokemonData.results;
+    
+    // Calcular els valors màxims reals de les estadístiques
+    await calculateMaxStats();
     
     await renderPokemonList(currentPage);
     
@@ -430,6 +457,7 @@ initializeApp = async () => {
     
     // Event listeners per tancar el dialog
     closeBtn.addEventListener('click', closePokemonDialog);
+    // Tancar al clicar fora del contingut
     dialog.addEventListener('click', (e) => {
         if (e.target === dialog) {
             closePokemonDialog();
