@@ -9,7 +9,7 @@ Aplicació web de Pokedex amb HTML, CSS i JavaScript que consumeix la PokeAPI.
 ## 🚀 Funcionalitats
 
 ### Llista de Pokemon
-- **Paginació dinàmica**: 18 Pokemon per pàgina amb càlcul automàtic del total des de l'API
+- **Paginació dinàmica**: 20 Pokemon per pàgina amb càlcul automàtic del total des de l'API
 - **Cerca en temps real**: Filtratge instantani per nom amb paginació integrada
 - **Targetes responsives**: Imatge, nom, atac i defensa amb disseny adaptatiu
 - **Click per detalls**: Obertura de dialog modal amb informació completa
@@ -29,12 +29,18 @@ Aplicació web de Pokedex amb HTML, CSS i JavaScript que consumeix la PokeAPI.
   - **Cadena d'evolució completa**: Imatges responsives (25vw) amb navegació
   - **Click a evolució**: Navega al Pokemon seleccionat mantenint el dialog obert
 
-### Optimitzacions Tècniques
-- **Càrrega inicial intel·ligent**: Consulta dinàmica del total de Pokemon (no hardcoded)
-- **Càlcul de stats màxims**: Mostreig dels primers 150 Pokemon per obtenir valors reals
-- **Imatges d'evolució responsives**: 25% del viewport width per adaptació automàtica
-- **CSS amb especificitat optimitzada**: `:not()` selector per evitar conflictes
-- **Gestió eficient de filtres**: Paginació sobre llista filtrada o completa segons cerca
+
+### Combat Pokemon
+- **Mode de joc interactiu**: Sistema de combat amb mecàniques simples
+- **Targetes flip animades**: 10 cartes amb efecte de gir 3D
+- **Selecció de cartes**: Click per girar i seleccionar 2 Pokemon
+- **Sistema de combat automàtic**: Comparació Attack vs Defense
+- **Efectes visuals**: Borders verd (guanyador) i vermell (perdedor)
+- **Dialog de resultats**: Mostra el guanyador amb detalls del combat
+- **Pokemon aleatoris**: Generació de 10 Pokemon diferents cada partida
+- **Validació d'IDs**: Límit a Pokemon vàlids (1-1025) per evitar errors 404
+- **Optimització de càrrega**:Ús de `Set` per evitar duplicats (O(1) lookup)
+- **Reinici de partida**: Botó per començar nou combat amb nous Pokemon
 
 ## 🛠️ Tecnologies
 
@@ -45,6 +51,9 @@ Aplicació web de Pokedex amb HTML, CSS i JavaScript que consumeix la PokeAPI.
   - `backdrop-filter` per efectes de vidre
   - Viewport units (`vw`) per responsive design
   - Selectors avançats (`:not()`, pseudo-elements)
+  - `transform: rotateY()` per flip cards 3D
+  - `perspective` i `transform-style: preserve-3d`
+  - `backface-visibility` per ocultació de cares
 - **JavaScript ES6+**: 
   - `async/await` per peticions asíncrones
   - `fetch()` API per consum de PokeAPI
@@ -65,14 +74,30 @@ Aplicació web de Pokedex amb HTML, CSS i JavaScript que consumeix la PokeAPI.
 practica2/
 ├── index.html
 ├── scripts/index.js
-└── styles/styles.css
+├── styles/styles.css
+└── pages/
+    └── combat/
+        ├── index.html
+        ├── combat.js
+        └── combat.css
 ```
 
 ## 🎮 Ús
 
+### Llista de Pokemon
 1. Obre `index.html`
-2. Navega amb paginació i cerca
-3. Click a targeta → detalls en dialog
+2. Navega amb paginació (Primera, Anterior, Següent, Última)
+3. Usa l'input de pàgina per saltar directament
+4. Cerca Pokemon per nom en temps real
+5. Click a targeta → detalls en dialog
+
+### Combat
+1. Navega a la secció Combat
+2. Espera que es carreguin 10 Pokemon aleatoris
+3. Click a 2 cartes per girar-les i iniciar combat
+4. El Pokemon amb més Attack guanya contra el de més Defense
+5. Veu els resultats al dialog
+6. Click "Reiniciar Combat" per nova partida
 
 ---
 
@@ -88,11 +113,3 @@ Aquest és un projecte educatiu desenvolupat com a pràctica d'aprenentatge de l
 - Gestió d'esdeveniments i navegació dins de modals
 - Càlculs dinàmics i optimització de rendiment
 - Aplicació de bones pràctiques de programació web
-
-**Millores implementades:**
-- ✅ Scroll automàtic al top del dialog en canvi de Pokemon
-- ✅ Imatges d'evolució responsives amb `25vw`
-- ✅ Stats amb valors màxims dinàmics calculats automàticament
-- ✅ Total de Pokemon obtingut dinàmicament (no hardcoded)
-- ✅ CSS amb especificitat optimitzada amb selectors `:not()`
-- ✅ Format "valor / màxim" per millor comprensió de les estadístiques

@@ -21,15 +21,21 @@ body {
   background-color: var(--color-background-light);
   color: var(--color-text-primary);
   display: grid;
-  grid-template-columns: 1fr;
   grid-template-rows: auto 1fr auto;
   text-align: center;
   overflow-x: hidden;
 }
-a{
+
+a {
   text-decoration: none;
   color: var(--color-primary);
 }
+
+button:focus,
+a:focus {
+  outline: none;
+}
+
 header {
   background-color: var(--color-primary);
   color: white;
@@ -53,16 +59,13 @@ header nav ul {
   list-style: none;
   display: flex;
   gap: 1rem;
+}
 
-  a {
+header nav a {
   color: white;
   font-weight: bold;
-  text-decoration: none;
   transition: opacity 0.2s ease;
 }
-}
-
-header nav 
 
 header nav a:hover {
   opacity: 0.8;

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Combat - Pokedex</title>
+    <link rel="stylesheet" href="../../styles/styles.css">
+    <link rel="stylesheet" href="combat.css">
+    <script src="combat.js" type="module"></script>
+</head>
+<body>
+    <header>
+        <div><img src="../../img/Pokeball_icon-icons.com_67533.svg" alt="Pokedex"> <h3>Pokedex</h3></div>
+        <nav>
+            <ul>
+                <li><a href="../../index.html">Llista</a></li>
+                <li><a href="#">Combat</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section id="combatSection">
+            <h2>Combat Pokemon</h2>
+            <button id="resetBtn" class="reset-btn" style="display: none;">Reiniciar Combat</button>
+            <p class="combat-instructions">Selecciona dues cartes per iniciar el combat!</p>
+            <div id="combatGrid"></div>    
+        </section>
+    </main>
+    
+    <template id="combatCardTemplate">
+        <article class="flip-card">
+            <div class="flip-card-inner">
+                <div class="flip-card-front">
+                    <img src="" alt="">
+                    <h3></h3>
+                    <p class="attack">Attack: <span></span></p>
+                    <p class="defense">Defense: <span></span></p>
+                </div>
+                <div class="flip-card-back">
+                    <img src="../../img/Pokeball_icon-icons.com_67533.svg" alt="Pokemon">
+                </div>
+            </div>
+        </article>
+    </template>
+    
+    <dialog id="resultDialog" class="result-dialog">
+        <article class="result-content">
+            <h2 id="resultTitle"></h2>
+            <p id="resultMessage"></p>
+            <div class="result-buttons">
+                <button id="playAgainBtn" class="play-again-btn">Jugar de nou</button>
+                <button id="closeDialogBtn" class="close-dialog-btn">Tancar</button>
+            </div>
+        </article>
+    </dialog>
+    
+    <footer>Georgina. Tots els drets reservats</footer>
+</body>
+</html>
