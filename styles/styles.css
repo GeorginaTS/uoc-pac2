@@ -89,7 +89,7 @@ footer {
   position: fixed;
   top: 50vh;
   left: 50vw;
-  transform: translate(-50%, -50%); 
+  transform: translate(-50%, -50%);
   margin: 0;
 }
 
@@ -230,6 +230,10 @@ footer {
   align-items: center;
   flex-wrap: wrap;
   gap: 0.5rem;
+  > span {
+    display: flex;
+    gap: 0.25rem;
+  }
 }
 
 .type-badge {
@@ -243,24 +247,60 @@ footer {
 }
 
 /* Colors per tipus de Pokemon */
-.type-normal { background: #A8A878; }
-.type-fire { background: #F08030; }
-.type-water { background: #6890F0; }
-.type-electric { background: #F8D030; }
-.type-grass { background: #78C850; }
-.type-ice { background: #98D8D8; }
-.type-fighting { background: #C03028; }
-.type-poison { background: #A040A0; }
-.type-ground { background: #E0C068; }
-.type-flying { background: #A890F0; }
-.type-psychic { background: #F85888; }
-.type-bug { background: #A8B820; }
-.type-rock { background: #B8A038; }
-.type-ghost { background: #705898; }
-.type-dragon { background: #7038F8; }
-.type-dark { background: #705848; }
-.type-steel { background: #B8B8D0; }
-.type-fairy { background: #EE99AC; }
+.type-normal {
+  background: #a8a878;
+}
+.type-fire {
+  background: #f08030;
+}
+.type-water {
+  background: #6890f0;
+}
+.type-electric {
+  background: #f8d030;
+}
+.type-grass {
+  background: #78c850;
+}
+.type-ice {
+  background: #98d8d8;
+}
+.type-fighting {
+  background: #c03028;
+}
+.type-poison {
+  background: #a040a0;
+}
+.type-ground {
+  background: #e0c068;
+}
+.type-flying {
+  background: #a890f0;
+}
+.type-psychic {
+  background: #f85888;
+}
+.type-bug {
+  background: #a8b820;
+}
+.type-rock {
+  background: #b8a038;
+}
+.type-ghost {
+  background: #705898;
+}
+.type-dragon {
+  background: #7038f8;
+}
+.type-dark {
+  background: #705848;
+}
+.type-steel {
+  background: #b8b8d0;
+}
+.type-fairy {
+  background: #ee99ac;
+}
 
 /* Estadístiques amb barres */
 .stat {
@@ -289,10 +329,18 @@ footer {
   transition: width 0.5s ease;
 }
 
-.hp-fill { background: linear-gradient(90deg, #FF5959 0%, #FF0000 100%); }
-.attack-fill { background: linear-gradient(90deg, #F5AC78 0%, #F08030 100%); }
-.defense-fill { background: linear-gradient(90deg, #FAE078 0%, #F8D030 100%); }
-.speed-fill { background: linear-gradient(90deg, #FA92B2 0%, #F85888 100%); }
+.hp-fill {
+  background: linear-gradient(90deg, #ff5959 0%, #ff0000 100%);
+}
+.attack-fill {
+  background: linear-gradient(90deg, #f5ac78 0%, #f08030 100%);
+}
+.defense-fill {
+  background: linear-gradient(90deg, #fae078 0%, #f8d030 100%);
+}
+.speed-fill {
+  background: linear-gradient(90deg, #fa92b2 0%, #f85888 100%);
+}
 
 .stat-value {
   font-weight: bold;
@@ -441,9 +489,30 @@ button {
   margin-top: 1rem;
   > button {
     padding: 0.5rem 1rem;
-  }  
+  }
   > span {
     font-size: 1rem;
     color: var(--color-text-secondary);
+  }
 }
+
+.page-input-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#pageInput {
+  width: 4rem;
+  padding: 0.4rem;
+  text-align: center;
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+#pageInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
 }

@@ -332,10 +332,12 @@ const renderPokemonList = async (page, filteredList = null) => {
         list.innerHTML = '';
         
         for (const pokemon of pokemonList.results) {
-            const pokemonDetails = await fetchPokemonDetails(pokemon.url);
-            const listItem = document.createElement('li');
-            listItem.appendChild(createPokemonCard(pokemonDetails, pokemon.url));
-            list.appendChild(listItem);
+            if (pokemon && pokemon.url) {
+                const pokemonDetails = await fetchPokemonDetails(pokemon.url);
+                const listItem = document.createElement('li');
+                listItem.appendChild(createPokemonCard(pokemonDetails, pokemon.url));
+                list.appendChild(listItem);
+            }
         }
         
         updatePaginationButtons();
@@ -345,14 +347,22 @@ const renderPokemonList = async (page, filteredList = null) => {
 }
 
 const updatePaginationButtons = () => {
+    const firstBtn = document.getElementById('firstBtn');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
-    const pageInfo = document.getElementById('pageInfo');
+    const lastBtn = document.getElementById('lastBtn');
+    const pageInput = document.getElementById('pageInput');
+    const totalPagesSpan = document.getElementById('totalPages');
     const totalPages = Math.ceil(totalPokemons / POKEMON_COUNT);
     
+    firstBtn.disabled = currentPage === 1;
     prevBtn.disabled = currentPage === 1;
     nextBtn.disabled = currentPage >= totalPages;
-    pageInfo.textContent = `Pàgina ${currentPage} de ${totalPages}`;
+    lastBtn.disabled = currentPage >= totalPages;
+    
+    pageInput.value = currentPage;
+    pageInput.max = totalPages;
+    totalPagesSpan.textContent = totalPages;
 }
 
 // Calcular els valors màxims reals de cada estadística
@@ -400,11 +410,28 @@ initializeApp = async () => {
     
     await renderPokemonList(currentPage);
     
+    const firstBtn = document.getElementById('firstBtn');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
+    const lastBtn = document.getElementById('lastBtn');
+    const pageInput = document.getElementById('pageInput');
     const dialog = document.getElementById('pokemonDialog');
     const closeBtn = dialog.querySelector('.close-dialog');
     const searchInput = document.getElementById('search');
+    
+    // Event listener per anar a la primera pàgina
+    firstBtn.addEventListener('click', () => {
+        currentPage = 1;
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        if (searchTerm) {
+            const filteredPokemons = allPokemonList.filter(pokemon => 
+                pokemon.name.toLowerCase().includes(searchTerm)
+            );
+            renderPokemonList(currentPage, filteredPokemons);
+        } else {
+            renderPokemonList(currentPage);
+        }
+    });
     
     // Event listener per la cerca
     searchInput.addEventListener('input', (e) => {
@@ -452,6 +479,44 @@ initializeApp = async () => {
             } else {
                 renderPokemonList(currentPage);
             }
+        }
+    });
+    
+    // Event listener per anar a l'última pàgina
+    lastBtn.addEventListener('click', () => {
+        const totalPages = Math.ceil(totalPokemons / POKEMON_COUNT);
+        currentPage = totalPages;
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        if (searchTerm) {
+            const filteredPokemons = allPokemonList.filter(pokemon => 
+                pokemon.name.toLowerCase().includes(searchTerm)
+            );
+            renderPokemonList(currentPage, filteredPokemons);
+        } else {
+            renderPokemonList(currentPage);
+        }
+    });
+    
+    // Event listener per l'input de pàgina
+    pageInput.addEventListener('input', (e) => {
+        const totalPages = Math.ceil(totalPokemons / POKEMON_COUNT);
+        let newPage = parseInt(e.target.value);
+        
+        // Si el valor no és vàlid, no fer res
+        if (isNaN(newPage) || newPage < 1) return;
+        
+        // Validar que la pàgina estigui dins del rang
+        if (newPage > totalPages) newPage = totalPages;
+        
+        currentPage = newPage;
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        if (searchTerm) {
+            const filteredPokemons = allPokemonList.filter(pokemon => 
+                pokemon.name.toLowerCase().includes(searchTerm)
+            );
+            renderPokemonList(currentPage, filteredPokemons);
+        } else {
+            renderPokemonList(currentPage);
         }
     });
     
