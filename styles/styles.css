@@ -215,16 +215,43 @@ footer {
 .info-box p {
   margin: 0.5rem 0;
   color: var(--color-text-primary);
+  font-weight: bold;
 }
 
 .info-box span {
-  font-weight: bold;
+  font-weight: normal;
   color: var(--color-text-primary);
+  display: inline-flex;
+  gap: 0.8rem;
 }
 
-/* Badges de tipus */
+.type-icon-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 1rem;
+  height: 32px;
+  padding: 0.25rem 1rem;
+}
+
+.type-emoji {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.type-name {
+  font-weight: bold;
+  color: var(--color-text-primary);
+  text-transform: capitalize;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* Badges de tipus i habilitats */
 .type-badges,
-.weakness-badges {
+.weakness-badges,
+.ability-badges {
   margin: 0.5rem 0;
   display: flex;
   align-items: center;
@@ -236,7 +263,8 @@ footer {
   }
 }
 
-.type-badge {
+.type-badge,
+.ability-badge {
   display: inline-block;
   padding: 0.25rem 0.75rem;
   border-radius: 1rem;
@@ -486,7 +514,7 @@ button {
   justify-content: center;
   align-items: center;
   gap: 1rem;
-  margin-top: 1rem;
+  margin: 3rem 0 2rem 0;
   > button {
     padding: 0.5rem 1rem;
   }

@@ -1,5 +1,5 @@
 const API_URL = "https://pokeapi.co/api/v2";
-const POKEMON_COUNT = 18;
+const POKEMON_COUNT = 20;
 let currentPage = 1;
 let totalPokemons = 0;
 let allPokemonList = []; // Guardar tota la llista per filtrar
@@ -138,6 +138,47 @@ const getTypeWeaknesses = async (types) => {
     return Array.from(weaknessSet);
 }
 
+// Generar color basat en el hash del nom
+const getColorFromString = (str) => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    // Generar tonalitats saturades i amb bon contrast
+    const hue = Math.abs(hash % 360);
+    const saturation = 65 + (Math.abs(hash) % 20); // 65-85%
+    const lightness = 45 + (Math.abs(hash >> 8) % 15); // 45-60%
+    
+    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+}
+
+// Obtenir emoji del tipus Pokemon
+const getTypeEmoji = (typeName) => {
+    const typeEmojis = {
+        'normal': '⚪',
+        'fighting': '👊',
+        'flying': '🦅',
+        'poison': '☠️',
+        'ground': '🌍',
+        'rock': '🪨',
+        'bug': '🐛',
+        'ghost': '👻',
+        'steel': '⚙️',
+        'fire': '🔥',
+        'water': '💧',
+        'grass': '🌿',
+        'electric': '⚡',
+        'psychic': '🔮',
+        'ice': '❄️',
+        'dragon': '🐉',
+        'dark': '🌑',
+        'fairy': '🧚'
+    };
+    
+    return typeEmojis[typeName.toLowerCase()] || '❓';
+}
+
 // Obtenir cadena d'evolució
 const getEvolutionChain = async (evolutionChainUrl) => {
     if (!evolutionChainUrl) return [];
@@ -196,18 +237,44 @@ const openPokemonDialog = async (pokemonUrl) => {
     dialog.querySelector('.height span').textContent = pokemon.height;
     dialog.querySelector('.weight span').textContent = pokemon.weight;
     dialog.querySelector('.category span').textContent = pokemon.category;
-    dialog.querySelector('.abilities span').textContent = pokemon.abilities;
     dialog.querySelector('.gender span').textContent = pokemon.gender;
     
-    // Tipus
+    // Tipus de Pokemon
     const typeList = dialog.querySelector('.type-list');
     typeList.innerHTML = '';
-    pokemon.types.forEach(type => {
-        const badge = document.createElement('span');
-        badge.className = `type-badge type-${type}`;
-        badge.textContent = type;
-        typeList.appendChild(badge);
+    const types = pokemon.types;
+    types.forEach(type => {
+        const typeItem = document.createElement('span');
+        typeItem.className = 'type-icon-item';
+        
+        const emoji = document.createElement('span');
+        emoji.textContent = getTypeEmoji(type);
+        emoji.className = 'type-emoji';
+        
+        const text = document.createElement('span');
+        text.textContent = type;
+        text.className = 'type-name';
+        
+        typeItem.appendChild(emoji);
+        typeItem.appendChild(text);
+        typeList.appendChild(typeItem);
     });
+    
+    // Habilitats (ara abans de debilitats)
+    const abilityList = dialog.querySelector('.ability-list');
+    if (abilityList) {
+        abilityList.innerHTML = '';
+        if (pokemon.abilities) {
+            const abilities = pokemon.abilities.split(', ');
+            abilities.forEach(ability => {
+                const badge = document.createElement('span');
+                badge.className = 'ability-badge';
+                badge.textContent = ability;
+                badge.style.backgroundColor = getColorFromString(ability);
+                abilityList.appendChild(badge);
+            });
+        }
+    }
     
     // Debilitats
     const weaknessList = dialog.querySelector('.weakness-list');
@@ -367,6 +434,10 @@ const updatePaginationButtons = () => {
 
 // Calcular els valors màxims reals de cada estadística
 const calculateMaxStats = async () => {
+    console.log('Calculant stats màxims en paral·lel...');
+    
+    // Fer peticions en paral·lel de 50 en 50 per no col·lapsar
+    const batchSize = 50;
     const maxStats = {
         hp: 0,
         attack: 0,
@@ -374,24 +445,31 @@ const calculateMaxStats = async () => {
         speed: 0
     };
     
-    // Mostrejar només els primers 150 Pokemon per optimitzar
-    const sampleSize = Math.min(150, allPokemonList.length);
-    
-    for (let i = 0; i < sampleSize; i++) {
-        try {
-            const response = await fetch(allPokemonList[i].url);
-            const data = await response.json();
-            
-            maxStats.hp = Math.max(maxStats.hp, data.stats[0].base_stat);
-            maxStats.attack = Math.max(maxStats.attack, data.stats[1].base_stat);
-            maxStats.defense = Math.max(maxStats.defense, data.stats[2].base_stat);
-            maxStats.speed = Math.max(maxStats.speed, data.stats[5].base_stat);
-        } catch (error) {
-            console.log('Error fetching stats:', error);
-        }
+    for (let i = 0; i < allPokemonList.length; i += batchSize) {
+        const batch = allPokemonList.slice(i, i + batchSize);
+        const promises = batch.map(pokemon => 
+            fetch(pokemon.url)
+                .then(res => res.json())
+                .catch(err => {
+                    console.log('Error:', err);
+                    return null;
+                })
+        );
+        
+        const results = await Promise.all(promises);
+        
+        results.forEach(data => {
+            if (data && data.stats) {
+                maxStats.hp = Math.max(maxStats.hp, data.stats[0].base_stat);
+                maxStats.attack = Math.max(maxStats.attack, data.stats[1].base_stat);
+                maxStats.defense = Math.max(maxStats.defense, data.stats[2].base_stat);
+                maxStats.speed = Math.max(maxStats.speed, data.stats[5].base_stat);
+            }
+        });
+        
+        console.log(`Processat ${Math.min(i + batchSize, allPokemonList.length)}/${allPokemonList.length} Pokemon`);
     }
     
-    // Actualitzar els valors globals
     statMaxValues = maxStats;
     console.log('Max stats calculats:', statMaxValues);
 }
@@ -405,7 +483,7 @@ initializeApp = async () => {
     const allPokemonData = await fetchPokemons(totalPokemonCount, 0);
     allPokemonList = allPokemonData.results;
     
-    // Calcular els valors màxims reals de les estadístiques
+    // Calcular els valors màxims reals de les estadístiques en paral·lel
     await calculateMaxStats();
     
     await renderPokemonList(currentPage);
